@@ -1,0 +1,21 @@
+node_modules/
+dist/
+__pycache__/
+*.pyc
+*.spec
+build/
+
+# 含真实 API Key 的配置文件
+api_config.py
+
+# PyInstaller 打包产物
+anthropic_client.exe
+
+# 运行时用户数据（启动后生成在用户目录）
+chat_history.json
+conv_count.json
+affection.json
+settings.json
+
+# 杂项
+桌宠.lnk

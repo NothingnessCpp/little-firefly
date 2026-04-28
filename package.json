@@ -1,0 +1,15 @@
+{
+  "name": "little-firefly",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-packager . LittleFirefly --platform=win32 --arch=x64 --out=dist --overwrite --ignore \"api_config\\.py|build|__pycache__|.*\\.spec$|tests\"",
+    "build:dev": "electron-packager . LittleFirefly --platform=win32 --arch=x64 --out=dist --overwrite --ignore \"build|__pycache__|.*\\.spec$|tests\"",
+    "postbuild": "if exist anthropic_client.exe copy anthropic_client.exe dist\\LittleFirefly-win32-x64\\resources\\app\\"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-packager": "^17.1.2"
+  }
+}
