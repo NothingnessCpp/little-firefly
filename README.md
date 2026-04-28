@@ -1,7 +1,24 @@
 # Little Firefly — 流萤桌面宠物
 
-## 项目概述
-将一个静态 HTML 页面改造成 Electron 桌面宠物应用，支持透明背景、拖动、点击交互等功能。
+> 崩坏：星穹铁道 流萤 AI 角色扮演桌面宠物 | [下载 Release](https://github.com/Firefly26710Lover/little-firefly/releases)
+
+## 快速开始
+
+### 直接下载运行（无需 Python）
+1. 从 [Releases](https://github.com/Firefly26710Lover/little-firefly/releases) 下载 `LittleFirefly-v1.0.0.zip`
+2. 解压 → 双击 `LittleFirefly.exe`
+3. 右键宠物 → ⚙ → 选 Provider + 填 API Key → 保存
+4. 开始聊天
+
+> 国内下载慢？用加速：`https://ghproxy.com/` + Release 链接
+
+### 从源码运行
+```bash
+git clone https://github.com/Firefly26710Lover/little-firefly.git
+cd little-firefly
+npm install
+npm start
+```
 
 ## 可调整参数
 
@@ -299,23 +316,14 @@ DEFAULT_PROVIDER = "deepseek-v4-flash"
 
 **无 `api_config.py` 时的兜底：** Python 脚本内置了三个 provider 的 `base_url`，通过 CLI 参数 `--provider` + `--api-key` 也能正常运行。
 
-## 运行方式
+## 打包发布
 
-### 开发模式
-```bash
-npm start
-```
-
-### 打包（分享）
 ```bash
 npm run build        # 分享版（不含 api_config.py）
 npm run build:dev    # 自用版（含 api_config.py）
 ```
 
-### 运行打包产物
-```bash
-dist\LittleFirefly-win32-x64\LittleFirefly.exe
-```
+输出：`dist\LittleFirefly-win32-x64\`
 
 ## 功能特性
 - ✅ 透明背景，融入桌面
