@@ -62,19 +62,27 @@ function setWindowFromImage(imgX, imgY) {
   const winY = imgY - imageOffsetY;
   // 不再钳制窗口坐标，直接设置
   mainWindow.setPosition(winX, winY);
+
 }
 
 function getWindowPositionFromImage(imgX, imgY) {
   return { x: Math.round(imgX - imageOffsetX), y: Math.round(imgY - imageOffsetY) };
 }
 
+
+
 function safeSetPositionFromImage(imgX, imgY) {
   const clamped = clampImagePosition(imgX, imgY);
   const { x: winX, y: winY } = getWindowPositionFromImage(clamped.x, clamped.y);
   if (!mainWindow || mainWindow.isDestroyed()) return false;
   if (typeof winX !== 'number' || isNaN(winX) || typeof winY !== 'number' || isNaN(winY)) return false;
-  try { mainWindow.setPosition(winX, winY); return true; } catch { return false; }
+  try {
+    mainWindow.setBounds({ x: winX, y: winY, width: config.windowWidth, height: config.windowHeight });
+
+    return true;
+  } catch { return false; }
 }
+
 
 function stopWander() {
   isWandering = false;
@@ -249,8 +257,13 @@ function createWindow() {
     alwaysOnTop: true,
     resizable: false,
     skipTaskbar: true,
+    hasShadow: false,
     webPreferences: { nodeIntegration: true, contextIsolation: false }
   });
+
+  mainWindow.setBounds({ x: Math.round(initX), y: Math.round(initY), width: config.windowWidth, height: config.windowHeight });
+  
+
   mainWindow.loadFile('index.html');
 }
 

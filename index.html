@@ -26,10 +26,13 @@
         }
 
         body {
+
             background: transparent;
             overflow: hidden;
             -webkit-app-region: no-drag;
             cursor: default;
+
+
         }
 
         .pet-container {
@@ -194,22 +197,12 @@
             margin-top: var(--button-vertical-offset);
         }
 
-        body.is-wandering .speech,
-        body.is-wandering .clock-display,
-        body.is-wandering .affection-display,
         body.is-wandering .input-group,
-        body.is-wandering .settings-overlay,
-        body.is-wandering .button-group {
-            /* 整个按钮组完全隐藏 */
+        body.is-wandering .affection-display,
+        body.is-wandering .clock-display,
+        body.is-wandering .speak-btn {
             opacity: 0;
             pointer-events: none;
-        }
-
-       
-
-        /* 图片容器保留点击（用于点击停止行走） */
-        body.is-wandering .pet-body {
-            pointer-events: auto;
         }
 
         .settings-overlay {
@@ -220,8 +213,8 @@
             bottom: 0;
             background: transparent;
             display: none;
-            align-items: center;
-            justify-content: center;
+            align-items: flex-start;
+            justify-content: flex-start;
             z-index: 200;
             -webkit-app-region: no-drag;
         }
@@ -628,10 +621,13 @@
             if (!petBody) return;
             const rect = petBody.getBoundingClientRect();
             ipcRenderer.send('set-image-offset', rect.left, rect.top);
+
         }
 
         window.addEventListener('load', () => sendImageOffset());
         window.addEventListener('resize', () => sendImageOffset());
+
+     
 
         // 统一的 toggleWander 函数（已整合 sendImageOffset，删除冗余覆盖）
         async function toggleWander() {
