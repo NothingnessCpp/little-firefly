@@ -1,68 +1,67 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
-    <!-- 引入配置文件 -->
     <script src="config.js"></script>
     <style>
-        /* 可调整参数 */
         :root {
-            --button-spacing: 10px;  /* 按钮与图片的间距 */
-            --button-vertical-offset: 0px;  /* 按钮组垂直偏移 */
-            --speech-duration: 8;  /* 气泡停留时间(秒) */
-            --auto-speak-interval: 30000;  /* 自动说话检测间隔(毫秒) */
-            --auto-speak-probability: 0.0;  /* 自动说话触发概率(0-1) */
-            --speech-spacing: 10px;  /* 对话框与图片的间距 */
-            --input-opacity: 0.9;  /* 输入框透明度(0-1) */
-            --gif-switch-interval: 60000;  /* 切换到临时GIF的间隔(毫秒) */
-            --gif-temp-duration: 10000;     /* 临时GIF保持时间(毫秒) */
-            --gif-flip-probability: 0.0;    /* GIF随机翻转概率(0-1) */
-            --clock-opacity: 0.0;  /* 时钟透明度(0-1) */
+            --button-spacing: 10px;
+            --button-vertical-offset: 0px;
+            --speech-duration: 8;
+            --auto-speak-interval: 30000;
+            --auto-speak-probability: 0.0;
+            --speech-spacing: 10px;
+            --input-opacity: 0.9;
+            --gif-switch-interval: 60000;
+            --gif-temp-duration: 10000;
+            --gif-flip-probability: 0.0;
+            --clock-opacity: 0.0;
         }
 
-        /* 全局样式重置 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* 透明背景，支持 Electron 拖动 */
         body {
             background: transparent;
             overflow: hidden;
-            -webkit-app-region: drag;  /* 整个窗口可拖动 */
-            cursor: move;
+            -webkit-app-region: no-drag;
+            cursor: default;
         }
 
-        /* 宠物容器 - flex 布局：对话框(左) 图片(中) 按钮组(右) */
         .pet-container {
-            padding: 15px;
+            padding: 0;
             position: relative;
             display: flex;
-            align-items: flex-start;  /* 顶部对齐 */
-            justify-content: flex-end;  /* 图片和按钮靠右 */
-            gap: var(--button-spacing);  /* 元素间距 */
+            align-items: flex-start;
+            justify-content: flex-start;
+            gap: var(--button-spacing);
         }
 
-        /* 宠物主体 - 透明背景 */
         .pet-body {
             background: transparent;
-            padding: 15px;
+            padding: 0;
             border-radius: 10px;
             border: none;
             box-shadow: none;
+            -webkit-app-region: drag;
+            display: inline-block;
         }
 
-        /* 宠物图片样式 */
         .pet-body img {
             width: var(--pet-width);
             height: var(--pet-height);
             object-fit: contain;
             display: block;
             transition: opacity 0.5s;
+            -webkit-user-drag: none;
+            user-select: none;
+            pointer-events: auto;
         }
-        
+
         .pet-body img.fade-out {
             opacity: 0;
         }
@@ -71,32 +70,28 @@
             transform: scaleX(-1);
         }
 
-        /* 对话气泡 - 左侧显示，自动换行 */
         .speech {
             background: rgba(255, 255, 255, 0.95);
             color: #333;
             padding: 8px 12px;
             border-radius: 8px;
-            width: auto;
-            max-width: 260px;  /* 容纳约10个中文字符(中文字符约13px×2宽) */
-            white-space: normal;  /* 自动换行 */
+            max-width: 260px;
+            white-space: normal;
             word-wrap: break-word;
-            font-family: 'Microsoft YaHei', sans-serif;
             font-size: 13px;
-            opacity: 0;  /* 默认隐藏 */
+            opacity: 0;
             transition: opacity 0.3s;
             pointer-events: none;
             border: 1px solid #999;
             z-index: 100;
-            margin-right: var(--speech-spacing);  /* 与图片的间距 */
+            margin-right: var(--speech-spacing);
+            -webkit-app-region: no-drag;
         }
 
-        /* 气泡显示状态 */
         .speech.show {
             opacity: 1;
         }
 
-        /* 关闭按钮 */
         .close-btn {
             background: #ff0000;
             color: #fff;
@@ -113,13 +108,11 @@
             transition: opacity 0.3s;
         }
 
-        /* 鼠标悬停图片时显示关闭按钮 */
-        .pet-body:hover ~ .close-btn,
+        .pet-body:hover~.close-btn,
         .close-btn:hover {
             opacity: 1;
         }
 
-        /* 说话按钮 */
         .speak-btn {
             background: transparent;
             border: none;
@@ -132,10 +125,16 @@
         }
 
         .speak-btn:hover {
-            background: rgba(0,0,0,0.05);
+            background: rgba(0, 0, 0, 0.05);
         }
 
-        /* 输入组 - 横向排列 */
+        .input-group,
+        .affection-display,
+        .clock-display,
+        .button-group {
+            -webkit-app-region: no-drag;
+        }
+
         .input-group {
             display: flex;
             gap: 5px;
@@ -143,19 +142,16 @@
             transition: opacity 0.4s;
         }
 
-        /* 输入框 */
         .input-box {
             flex: 1;
             padding: 4px 8px;
             border: 1px solid #999;
             border-radius: 4px;
             font-size: 12px;
-            font-family: 'Courier New', monospace;
             background: rgba(255, 255, 255, var(--input-opacity));
             -webkit-app-region: no-drag;
         }
 
-        /* 发送按钮 */
         .send-btn {
             padding: 4px 8px;
             border: 1px solid #999;
@@ -163,71 +159,55 @@
             font-size: 12px;
             background: rgba(255, 255, 255, var(--input-opacity));
             cursor: pointer;
-            -webkit-app-region: no-drag;
             white-space: nowrap;
         }
 
-        .send-btn:hover {
-            background: rgba(200, 200, 200, var(--input-opacity));
-        }
-
-        /* 好感度显示 */
         .affection-display {
-            font-family: 'Microsoft YaHei', sans-serif;
             font-size: 12px;
             font-weight: bold;
-            color: #333;
-            background: rgba(255,255,255,0.8);
+            background: rgba(255, 255, 255, 0.8);
             padding: 2px 8px;
             border-radius: 4px;
             text-align: center;
             margin-top: 5px;
-            transition: opacity 0.4s;
         }
 
-        /* 时钟显示 */
         .clock-display {
             font-family: 'Courier New', monospace;
             font-size: 18px;
             font-weight: bold;
             color: #fff;
-            background: rgba(255,255,255, var(--clock-opacity));
+            background: rgba(255, 255, 255, var(--clock-opacity));
             padding: 4px 10px;
             border-radius: 4px;
             text-align: center;
             margin-bottom: 5px;
             letter-spacing: 1px;
-            text-shadow:
-                -1px -1px 0 #000,
-                1px -1px 0 #000,
-                -1px 1px 0 #000,
-                1px 1px 0 #000;
-            transition: opacity 0.4s;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
         }
 
-        /* 按钮组 - 垂直排列：关闭按钮在上，说话按钮在下 */
         .button-group {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 5px;
-            margin-top: var(--button-vertical-offset);  /* 垂直位置调整 */
+            margin-top: var(--button-vertical-offset);
         }
 
-        /* 闲逛模式：隐藏非必要UI */
         body.is-wandering .input-group,
         body.is-wandering .affection-display,
         body.is-wandering .clock-display,
         body.is-wandering .speak-btn {
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.4s;
         }
 
-        /* 设置面板 */
         .settings-overlay {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background: transparent;
             display: none;
             align-items: center;
@@ -235,73 +215,74 @@
             z-index: 200;
             -webkit-app-region: no-drag;
         }
-        .settings-overlay.show { display: flex; }
+
+        .settings-overlay.show {
+            display: flex;
+        }
+
         .settings-panel {
-            background: rgba(255,255,255,0.95);
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
             padding: 15px 18px;
             width: 340px;
             max-height: 290px;
             overflow-y: auto;
-            font-family: 'Microsoft YaHei', sans-serif;
             font-size: 12px;
             border: 1px solid #ccc;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
-        .settings-panel h3 {
-            text-align: center;
-            margin: 0 0 12px 0;
-            font-size: 14px;
-            color: #333;
-        }
+
         .settings-item {
             margin-bottom: 8px;
         }
-        .settings-item > div {
+
+        .settings-item>div {
             display: flex;
             justify-content: space-between;
             font-size: 12px;
             color: #555;
         }
-        .settings-item > div span {
+
+        .settings-item>div span {
             font-weight: bold;
             color: #333;
             min-width: 52px;
             text-align: right;
         }
+
         .settings-item input[type="range"] {
             width: 100%;
             margin-top: 2px;
             accent-color: #555;
         }
+
         .settings-buttons {
             display: flex;
             gap: 10px;
             justify-content: center;
             margin-top: 12px;
         }
+
         .settings-buttons button {
             padding: 5px 20px;
             border: 1px solid #999;
             border-radius: 4px;
             cursor: pointer;
             font-size: 12px;
-            background: rgba(255,255,255,0.95);
-            font-family: 'Microsoft YaHei', sans-serif;
+            background: rgba(255, 255, 255, 0.95);
         }
+
         .settings-buttons button:hover {
-            background: rgba(220,220,220,0.95);
+            background: rgba(220, 220, 220, 0.95);
         }
     </style>
 </head>
+
 <body>
     <div class="pet-container">
         <div class="speech" id="speech"></div>
         <div>
             <div class="clock-display" id="clockDisplay">00:00:00</div>
-            <div class="pet-body">
-                <img src="" alt="Pickle" id="petGif">
-            </div>
+            <div class="pet-body"><img src="" alt="Pickle" id="petGif" draggable="false"></div>
             <div class="input-group">
                 <input type="text" class="input-box" id="inputBox" placeholder="输入消息...">
                 <button class="send-btn" onclick="sendMessage()">发送</button>
@@ -315,70 +296,59 @@
             <button class="speak-btn" id="settingsBtn" onclick="openSettings()">⚙</button>
         </div>
     </div>
-
-    <!-- 设置面板 -->
     <div class="settings-overlay" id="settingsOverlay">
         <div class="settings-panel">
             <h3>⚙ 设置</h3>
             <div class="settings-item">
-                <div>气泡停留 <span id="valSpeechDuration">8s</span></div>
-                <input type="range" min="1" max="60" step="1" id="setSpeechDuration">
+                <div>气泡停留 <span id="valSpeechDuration">8s</span></div><input type="range" min="1" max="60"
+                    id="setSpeechDuration">
             </div>
             <div class="settings-item">
-                <div>自动说话间隔 <span id="valAutoSpeakInterval">30s</span></div>
-                <input type="range" min="5000" max="300000" step="5000" id="setAutoSpeakInterval">
+                <div>自动说话间隔 <span id="valAutoSpeakInterval">30s</span></div><input type="range" min="5000" max="300000"
+                    step="5000" id="setAutoSpeakInterval">
             </div>
             <div class="settings-item">
-                <div>说话概率 <span id="valAutoSpeakProbability">0.00</span></div>
-                <input type="range" min="0" max="1" step="0.05" id="setAutoSpeakProbability">
+                <div>说话概率 <span id="valAutoSpeakProbability">0.00</span></div><input type="range" min="0" max="1"
+                    step="0.05" id="setAutoSpeakProbability">
             </div>
             <div class="settings-item">
-                <div>GIF切换间隔 <span id="valGifSwitchInterval">60s</span></div>
-                <input type="range" min="10000" max="300000" step="5000" id="setGifSwitchInterval">
+                <div>GIF切换间隔 <span id="valGifSwitchInterval">60s</span></div><input type="range" min="10000"
+                    max="300000" step="5000" id="setGifSwitchInterval">
             </div>
             <div class="settings-item">
-                <div>临时GIF保持 <span id="valGifTempDuration">10s</span></div>
-                <input type="range" min="5000" max="60000" step="1000" id="setGifTempDuration">
+                <div>临时GIF保持 <span id="valGifTempDuration">10s</span></div><input type="range" min="5000" max="60000"
+                    step="1000" id="setGifTempDuration">
             </div>
-            <div class="settings-item" style="margin-top:4px; padding-top:8px; border-top:1px solid #ddd;">
-                <div>Provider</div>
-                <select id="setProvider" style="width:100%; margin-top:2px; padding:3px; border:1px solid #ccc; border-radius:4px; font-size:12px;">
-                    <option value="minimax">MiniMax (M2.7)</option>
+            <div class="settings-item">
+                <div>Provider</div><select id="setProvider">
+                    <option value="minimax">MiniMax</option>
                     <option value="deepseek-v4-flash">DeepSeek V4 Flash</option>
                     <option value="deepseek-v4-pro">DeepSeek V4 Pro</option>
                 </select>
             </div>
             <div class="settings-item">
-                <div>API Key（留空=本地默认）</div>
-                <input type="password" id="setApiKey" placeholder="覆盖默认 key" style="width:100%; margin-top:2px; padding:3px 6px; border:1px solid #ccc; border-radius:4px; font-size:12px;">
+                <div>API Key</div><input type="password" id="setApiKey" placeholder="覆盖默认 key">
             </div>
-            <div class="settings-buttons">
-                <button onclick="saveAndCloseSettings()">保存</button>
-                <button onclick="closeSettings()">取消</button>
-            </div>
-            <div style="text-align:center; margin-top:8px; padding-top:8px; border-top:1px solid #ddd;">
-                <button onclick="clearChatHistory()" style="padding:3px 12px; border:1px solid #c66; border-radius:4px; cursor:pointer; font-size:11px; background:rgba(255,255,255,0.9); color:#c66;">清空聊天记录</button>
-                <span id="clearChatMsg" style="font-size:10px; color:#999; margin-left:6px; display:none;"></span>
-            </div>
+            <div class="settings-buttons"><button onclick="saveAndCloseSettings()">保存</button><button
+                    onclick="closeSettings()">取消</button></div>
+            <div><button onclick="clearChatHistory()">清空聊天记录</button><span id="clearChatMsg"
+                    style="display:none;"></span></div>
         </div>
     </div>
-
-    <!-- 引入消息配置文件 -->
     <script src="messages.js"></script>
     <script src="gifs.js"></script>
     <script>
-        // 应用配置中的宠物大小
+        // 原有初始化代码不变（documentElement 样式、获取元素等）
         document.documentElement.style.setProperty('--pet-width', config.petWidth + 'px');
         document.documentElement.style.setProperty('--pet-height', config.petHeight + 'px');
-    </script>
-    <script>
-        // DOM 元素
+
         const speech = document.getElementById('speech');
         const petGif = document.getElementById('petGif');
         const affectionDisplay = document.getElementById('affectionLevel');
         const { ipcRenderer } = require('electron');
 
-        // 从 CSS 变量读取默认值，启动后从 settings.json 覆盖
+        petGif.addEventListener('dragstart', (e) => { e.preventDefault(); return false; });
+
         const rootStyle = getComputedStyle(document.documentElement);
         const gifFlipProbability = parseFloat(rootStyle.getPropertyValue('--gif-flip-probability'));
         let settings = {
@@ -413,7 +383,6 @@
             return ipcRenderer.invoke('save-settings', { ...settings });
         }
 
-        // 好感度系统（持久化到用户目录 %APPDATA%/Pickle桌宠/）
         const fs = require('fs');
         const path = require('path');
         let AFFECTION_FILE = null;
@@ -426,7 +395,7 @@
                     const data = JSON.parse(fs.readFileSync(AFFECTION_FILE, 'utf-8'));
                     return typeof data.affection === 'number' ? data.affection : config.affection;
                 }
-            } catch (e) {}
+            } catch (e) { }
             return config.affection;
         }
 
@@ -448,7 +417,7 @@
                 affection = loadAffection();
                 saveAffection();
                 updateAffectionDisplay();
-            } catch (e) {}
+            } catch (e) { }
         }
         initAffection();
 
@@ -462,80 +431,66 @@
             saveAffection();
         }
 
-        // 切换到临时GIF（随机选择，淡入淡出效果）
         function switchToTempGif() {
             if (gifs.length === 0 || isWandering) return;
-
             petGif.classList.add('fade-out');
             setTimeout(() => {
                 if (isWandering) { petGif.classList.remove('fade-out'); return; }
                 const tempGif = gifs[Math.floor(Math.random() * gifs.length)];
                 petGif.src = tempGif;
-                // 对抽取的临时 GIF，根据随机结果决定是否翻转
+                // 随机翻转（使用 style.transform）
                 if (Math.random() < gifFlipProbability) {
-                    petGif.classList.add('flip-x');
+                    petGif.style.transform = 'scaleX(-1)';
                 } else {
-                    petGif.classList.remove('flip-x');
+                    petGif.style.transform = 'scaleX(1)';
                 }
                 petGif.classList.remove('fade-out');
-                // 保持一段时间后切回常驻
                 setTimeout(switchToResidentGif, settings.gifTempDuration);
             }, 500);
         }
 
-        // 切换回常驻GIF
         function switchToResidentGif() {
             if (isWandering) return;
             if (petGif.src.includes('流萤_小熊猫_躺')) return;
-
             petGif.classList.add('fade-out');
             setTimeout(() => {
                 if (isWandering) { petGif.classList.remove('fade-out'); return; }
                 petGif.src = residentGif;
-                // 随机决定常驻GIF朝向
                 if (Math.random() < gifFlipProbability) {
-                    petGif.classList.add('flip-x');
+                    petGif.style.transform = 'scaleX(-1)';
                 } else {
-                    petGif.classList.remove('flip-x');
+                    petGif.style.transform = 'scaleX(1)';
                 }
                 petGif.classList.remove('fade-out');
-                // 间隔后再次切换到临时GIF
                 setTimeout(switchToTempGif, settings.gifSwitchInterval);
             }, 500);
         }
 
-        // 启动时设置常驻GIF
         petGif.src = residentGif;
-        // 启动 GIF 定时切换
         setTimeout(switchToTempGif, settings.gifSwitchInterval);
 
-        // 拖动检测变量
-        let isDragging = false;
+        let isDraggingFlag = false;
         let mouseDownX = 0, mouseDownY = 0;
 
-        // 鼠标按下时记录起始坐标
         document.body.addEventListener('mousedown', (e) => {
-            isDragging = false;
+            isDraggingFlag = false;
             mouseDownX = e.clientX;
             mouseDownY = e.clientY;
         });
 
-        // 鼠标释放时，位移小于5px才算点击
         document.body.addEventListener('mouseup', (e) => {
             const dx = Math.abs(e.clientX - mouseDownX);
             const dy = Math.abs(e.clientY - mouseDownY);
             if (dx < 5 && dy < 5 && e.target.closest('.input-group, .button-group, .settings-overlay') === null) {
                 if (isWandering) {
-                    toggleWander(); // 闲逛时点击图片区域停止闲逛
+                    toggleWander();
                 } else {
                     speak();
                 }
             }
         });
 
-        // 说话函数 - 随机显示消息
         let speechTimer = null;
-
         function showSpeech(text, duration) {
             clearTimeout(speechTimer);
             speech.textContent = text;
@@ -549,26 +504,21 @@
             const msg = messages[Math.floor(Math.random() * messages.length)];
             showSpeech('...', null);
             try {
-                const { ipcRenderer } = require('electron');
                 const result = await ipcRenderer.invoke('polish-message', msg);
                 showSpeech(result.text || msg, settings.speechDuration * 1000);
             } catch (err) {
-                showSpeech(msg, settings.speechDuration * 1000); // 降级为原始消息
+                showSpeech(msg, settings.speechDuration * 1000);
             }
         }
 
-        // 发送消息函数
         async function sendMessage() {
             const inputBox = document.getElementById('inputBox');
             if (inputBox.value.trim()) {
                 const userInput = inputBox.value.trim();
-                
-                // 检查重置命令
                 if (userInput.toLowerCase() === '/reset') {
                     inputBox.value = '';
                     showSpeech('正在清除对话历史...', null);
                     try {
-                        const { ipcRenderer } = require('electron');
                         const result = await ipcRenderer.invoke('chat-message', userInput);
                         showSpeech(result.text || '已清除', settings.speechDuration * 1000);
                     } catch (err) {
@@ -576,15 +526,10 @@
                     }
                     return;
                 }
-
                 showSpeech('...', null);
                 inputBox.value = '';
-
                 try {
-                    const { ipcRenderer } = require('electron');
                     const result = await ipcRenderer.invoke('chat-message', userInput);
-                    console.log('[debug] chat result:', JSON.stringify(result));
-                    console.log('[debug] raw stdout:', result._debug_stdout);
                     showSpeech(result.text || '流萤没有回复', settings.speechDuration * 1000);
                 } catch (err) {
                     showSpeech('流萤掉线了: ' + err.message, settings.speechDuration * 1000);
@@ -592,14 +537,12 @@
             }
         }
 
-        // 启动时打招呼
         window.addEventListener('load', () => {
             updateAffectionDisplay();
             showSpeech('嗨~又见面啦，开拓者！', settings.speechDuration * 1000);
             updateClock();
         });
 
-        // 更新时钟显示
         function updateClock() {
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
@@ -607,11 +550,8 @@
             const seconds = String(now.getSeconds()).padStart(2, '0');
             document.getElementById('clockDisplay').textContent = `${hours}:${minutes}:${seconds}`;
         }
-
-        // 每秒更新时钟
         setInterval(updateClock, 1000);
 
-        // 自动说话 - 按设定间隔和概率触发（闲逛模式不触发）
         let autoSpeakTimer = null;
         function restartAutoSpeak() {
             if (autoSpeakTimer) clearInterval(autoSpeakTimer);
@@ -621,73 +561,117 @@
         }
         restartAutoSpeak();
 
-        // 输入框回车发送
-        const inputBox = document.getElementById('inputBox');
-        inputBox.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && inputBox.value.trim()) {
+        const inputBoxElem = document.getElementById('inputBox');
+        inputBoxElem.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && inputBoxElem.value.trim()) {
                 sendMessage();
             }
         });
 
-        // 闲逛模式
         let isWandering = false;
+        let pendingDirection = null;   // 暂存方向
+        // 应用方向的函数（独立，不依赖 isWandering 检查？注意内部仍会检查）
+        function applyDirection(dir) {
+            if (!isWandering) {
+                // 如果还未进入行走模式，暂存方向
+                pendingDirection = dir;
+                return;
+            }
+            if (dir === 'right') {
+                petGif.style.transform = 'scaleX(-1)';
+            } else if (dir === 'left') {
+                petGif.style.transform = 'scaleX(1)';
+            }
+            pendingDirection = null;
+        }
 
-        // 自动停止时由主进程通知
-        require('electron').ipcRenderer.on('wander-auto-stopped', () => {
+        ipcRenderer.on('wander-auto-stopped', () => {
             isWandering = false;
+            pendingDirection = null;   // 新增：清空暂存的方向
             document.getElementById('wanderBtn').style.background = '';
             document.body.classList.remove('is-wandering');
-            document.body.style.webkitAppRegion = 'drag'; // 恢复拖动
+            const petBody = document.querySelector('.pet-body');
+            if (petBody) petBody.style.webkitAppRegion = 'drag';
+            petGif.style.transform = 'scaleX(1)';   // 重置翻转
             petGif.classList.add('fade-out');
-            setTimeout(() => { petGif.src = residentGif; petGif.classList.remove('fade-out'); petGif.classList.remove('flip-x'); }, 500);
+            setTimeout(() => {
+                petGif.src = residentGif;
+                petGif.classList.remove('fade-out');
+                petGif.style.transform = 'scaleX(1)';
+            }, 500);
         });
 
-        // 闲逛方向切换：左向正常，右向翻转
-        require('electron').ipcRenderer.on('wander-direction', (event, dir) => {
-            if (!isWandering) return;
-            if (dir === 'right') {
-                petGif.classList.add('flip-x');
-            } else {
-                petGif.classList.remove('flip-x');
-            }
+        // ========== 关键修改：直接操作 transform，不依赖类 ==========
+        // 方向事件监听
+        ipcRenderer.on('wander-direction', (event, dir) => {
+            console.log('[方向事件]', dir, 'isWandering:', isWandering);
+            applyDirection(dir);
         });
 
-        // 后台好感度评估结果（异步，不阻塞聊天）
-        require('electron').ipcRenderer.on('affection-update', (event, delta) => {
+        ipcRenderer.on('affection-update', (event, delta) => {
             if (delta !== 0) changeAffection(delta);
         });
-        let gifBeforeWander = null;
 
+        // 发送图片偏移量
+        function sendImageOffset() {
+            const petBody = document.querySelector('.pet-body');
+            if (!petBody) return;
+            const rect = petBody.getBoundingClientRect();
+            ipcRenderer.send('set-image-offset', rect.left, rect.top);
+        }
+
+        window.addEventListener('load', () => sendImageOffset());
+        window.addEventListener('resize', () => sendImageOffset());
+
+        // 统一的 toggleWander 函数（已整合 sendImageOffset，删除冗余覆盖）
         async function toggleWander() {
-            const { ipcRenderer } = require('electron');
+            sendImageOffset();
             const result = await ipcRenderer.invoke('toggle-wander');
-            isWandering = result.wandering;
+            const newWandering = result.wandering;
+            if (newWandering === isWandering) return;
+
+            isWandering = newWandering;
             const wanderBtn = document.getElementById('wanderBtn');
-            // 闲逛时禁用 drag，使鼠标点击事件可以正常触发
-            document.body.style.webkitAppRegion = isWandering ? 'no-drag' : 'drag';
-            document.body.classList.toggle('is-wandering', isWandering);
+            const petBody = document.querySelector('.pet-body');
+
             if (isWandering) {
+                // 启动行走
+                petGif.style.transform = 'scaleX(1)';
                 wanderBtn.style.background = 'rgba(100,180,255,0.25)';
-                // 切换到行走GIF（默认左向）
+                petBody.style.webkitAppRegion = 'no-drag';
+                document.body.classList.add('is-wandering');
                 petGif.classList.add('fade-out');
                 setTimeout(() => {
-                    petGif.src = wanderGifs[Math.floor(Math.random() * wanderGifs.length)];
+                    const newGif = wanderGifs[Math.floor(Math.random() * wanderGifs.length)];
+                    petGif.src = newGif;
                     petGif.classList.remove('fade-out');
+                    // 行走GIF加载完成后，如果有暂存的方向，应用它
+                    if (pendingDirection !== null) {
+                        applyDirection(pendingDirection);
+                    }
                 }, 500);
             } else {
+                // 停止行走
+                petGif.style.transform = 'scaleX(1)';
+                pendingDirection = null;
                 wanderBtn.style.background = '';
-                // 切回常驻GIF，清除翻转
+                petBody.style.webkitAppRegion = 'drag';
+                document.body.classList.remove('is-wandering');
                 petGif.classList.add('fade-out');
                 setTimeout(() => {
                     petGif.src = residentGif;
                     petGif.classList.remove('fade-out');
-                    petGif.classList.remove('flip-x');
+                    petGif.style.transform = 'scaleX(1)';
                 }, 500);
+            }
+
+            // 重要：状态更新后，立刻检查是否有暂存的方向（可能在状态变更前已经收到方向事件）
+            if (isWandering && pendingDirection !== null) {
+                applyDirection(pendingDirection);
             }
         }
 
-        // ========== 设置面板 ==========
-
+        // 设置面板函数（保持不变）
         function openSettings() {
             if (isWandering) return;
             const ov = document.getElementById('settingsOverlay');
@@ -705,8 +689,8 @@
             document.getElementById('setApiKey').value = settings.apiKey;
             bindSettingsSliders();
             ov.classList.add('show');
-            ov.onclick = function(e) { if (e.target === ov) closeSettings(); };
-            ov.addEventListener('mousedown', function(e) { e.stopPropagation(); });
+            ov.onclick = function (e) { if (e.target === ov) closeSettings(); };
+            ov.addEventListener('mousedown', function (e) { e.stopPropagation(); });
         }
 
         function closeSettings() {
@@ -714,19 +698,19 @@
         }
 
         function bindSettingsSliders() {
-            document.getElementById('setSpeechDuration').oninput = function() {
+            document.getElementById('setSpeechDuration').oninput = function () {
                 document.getElementById('valSpeechDuration').textContent = this.value + 's';
             };
-            document.getElementById('setAutoSpeakInterval').oninput = function() {
+            document.getElementById('setAutoSpeakInterval').oninput = function () {
                 document.getElementById('valAutoSpeakInterval').textContent = (this.value / 1000).toFixed(0) + 's';
             };
-            document.getElementById('setAutoSpeakProbability').oninput = function() {
+            document.getElementById('setAutoSpeakProbability').oninput = function () {
                 document.getElementById('valAutoSpeakProbability').textContent = parseFloat(this.value).toFixed(2);
             };
-            document.getElementById('setGifSwitchInterval').oninput = function() {
+            document.getElementById('setGifSwitchInterval').oninput = function () {
                 document.getElementById('valGifSwitchInterval').textContent = (this.value / 1000).toFixed(0) + 's';
             };
-            document.getElementById('setGifTempDuration').oninput = function() {
+            document.getElementById('setGifTempDuration').oninput = function () {
                 document.getElementById('valGifTempDuration').textContent = (this.value / 1000).toFixed(0) + 's';
             };
         }
@@ -747,7 +731,6 @@
         }
 
         async function clearChatHistory() {
-            const { ipcRenderer } = require('electron');
             const result = await ipcRenderer.invoke('reset-chat');
             const msg = document.getElementById('clearChatMsg');
             msg.style.display = 'inline';
@@ -755,12 +738,13 @@
             setTimeout(() => { msg.style.display = 'none'; }, 2000);
         }
 
-        // 右键打开设置
-        document.addEventListener('contextmenu', function(e) {
+        document.addEventListener('contextmenu', function (e) {
+            if (!e.target.closest('.pet-body')) return;
             if (e.target.closest('.button-group, .input-group, .settings-overlay')) return;
             e.preventDefault();
             if (!isWandering) openSettings();
         });
     </script>
 </body>
+
 </html>
