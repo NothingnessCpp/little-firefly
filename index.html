@@ -37,7 +37,7 @@
             position: relative;
             display: flex;
             align-items: flex-start;
-            justify-content: flex-start;
+            justify-content: flex-end;
             gap: var(--button-spacing);
         }
 
@@ -194,12 +194,22 @@
             margin-top: var(--button-vertical-offset);
         }
 
-        body.is-wandering .input-group,
-        body.is-wandering .affection-display,
+        body.is-wandering .speech,
         body.is-wandering .clock-display,
-        body.is-wandering .speak-btn {
+        body.is-wandering .affection-display,
+        body.is-wandering .input-group,
+        body.is-wandering .settings-overlay,
+        body.is-wandering .button-group {
+            /* 整个按钮组完全隐藏 */
             opacity: 0;
             pointer-events: none;
+        }
+
+       
+
+        /* 图片容器保留点击（用于点击停止行走） */
+        body.is-wandering .pet-body {
+            pointer-events: auto;
         }
 
         .settings-overlay {
