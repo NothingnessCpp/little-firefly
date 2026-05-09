@@ -476,19 +476,23 @@
         let mouseDownX = 0, mouseDownY = 0;
 
         document.body.addEventListener('mousedown', (e) => {
-            isDraggingFlag = false;
-            mouseDownX = e.clientX;
-            mouseDownY = e.clientY;
+            // isDraggingFlag = false;
+            mouseDownScreenX = e.screenX;
+            mouseDownScreenY = e.screenY;
         });
 
         document.body.addEventListener('mouseup', (e) => {
-            const dx = Math.abs(e.clientX - mouseDownX);
-            const dy = Math.abs(e.clientY - mouseDownY);
-            if (dx < 5 && dy < 5 && e.target.closest('.input-group, .button-group, .settings-overlay') === null) {
-                if (isWandering) {
-                    toggleWander();
-                } else {
-                    speak();
+            const dx = Math.abs(e.screenX - mouseDownScreenX);
+            const dy = Math.abs(e.screenY - mouseDownScreenY);
+            if (dx < 5 && dy < 5) {
+                // 获取鼠标位置的元素（当前）
+                const elem = document.elementsFromPoint(e.clientX, e.clientY)[0];
+                if (elem && elem.closest && elem.closest('.pet-body')) {
+                    if (isWandering) {
+                        toggleWander();
+                    } else {
+                        speak();
+                    }
                 }
             }
         });
@@ -627,7 +631,7 @@
         window.addEventListener('load', () => sendImageOffset());
         window.addEventListener('resize', () => sendImageOffset());
 
-     
+
 
         // 统一的 toggleWander 函数（已整合 sendImageOffset，删除冗余覆盖）
         async function toggleWander() {
